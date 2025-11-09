@@ -119,6 +119,12 @@ make run/<example-name>
 make run/mnist      # train and save
 make run/mnist_eval # evaluation
 ```
+```bash
+Running example: mnist_eval
+Evaluation on 10000 random test images:
+Pre-trained MLP Accuracy: 21.70% (2170/10000)
+Random MLP Accuracy:     5.05% (505/10000)
+```
 
 ## Note
 - MicrogradC is very slow for MNIST, especially with larger models. For shits and giggles only.
