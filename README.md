@@ -39,8 +39,6 @@ int main() {
             Value *inputs[2];
             inputs[0] = value_create(&graph_arena, X[i][0]);
             inputs[1] = value_create(&graph_arena, X[i][1]);
-            inputs[0]->value_kind = VALUE_INPUT;
-            inputs[1]->value_kind = VALUE_INPUT;
             
             // Create target Value
             Value *target = value_create(&graph_arena, y[i]);
@@ -85,6 +83,24 @@ int main() {
     arena_free(&param_arena);
     return 0;
 }
+```
+```
+Epoch    0, Avg Loss: 1.132206
+Epoch  500, Avg Loss: 0.136454
+Epoch 1000, Avg Loss: 0.001060
+Epoch 1500, Avg Loss: 0.000429
+Epoch 2000, Avg Loss: 0.000261
+Epoch 2500, Avg Loss: 0.000186
+Epoch 3000, Avg Loss: 0.000143
+Epoch 3500, Avg Loss: 0.000116
+Epoch 4000, Avg Loss: 0.000097
+Epoch 4500, Avg Loss: 0.000084
+
+--- Final Results ---
+Input: [0, 0], Target: 0, Prediction: 0.0002
+Input: [0, 1], Target: 1, Prediction: 0.9878
+Input: [1, 0], Target: 1, Prediction: 0.9880
+Input: [1, 1], Target: 0, Prediction: -0.0001
 ```
 
 # References
