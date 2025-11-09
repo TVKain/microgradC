@@ -1,9 +1,15 @@
 # MicrogradC
 - [Micrograd](https://github.com/karpathy/micrograd) in C
-- I built this to understand how neural networks actually work under the hood 
+- I built this to understand how neural networks are implemented under the hood 
 - Uses Arena Allocator from [Tsoding](https://github.com/tsoding) for memory management
 
-# Examples
+## Requirements
+- C compiler `gcc`, `clang`, ...
+- `make`
+
+## Examples
+
+### XOR with Cross-Entropy
 ```C
 #include "arena.h"
 #include "value.h"
@@ -103,6 +109,11 @@ Input: [1, 0] | Target: 1 | Output: (-40.8965, -33.7789) | Softmax: (0.0008, 0.9
 Input: [1, 1] | Target: 0 | Output: (-49.6678, -56.9846) | Softmax: (0.9993, 0.0007)
 ```
 
-# References
+## Running examples
+```
+make run/<example-name>
+```
+
+## References
 - https://github.com/karpathy/micrograd
 - https://github.com/tsoding/arena
