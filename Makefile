@@ -1,7 +1,7 @@
 # Makefile for MicrogradC
 
 CC      := gcc
-CFLAGS  := -Wall -Wextra -O2 -std=c99 -Iinclude
+CFLAGS  := -Wall -Wextra -O2 -std=c23 -Iinclude
 LDFLAGS := -lm
 AR      := ar
 ARFLAGS := rcs
