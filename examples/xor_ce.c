@@ -8,8 +8,8 @@ int main() {
 
     // Define MLP with 2 inputs, 16 hidden, 2 outputs
     Layer_Config cfgs[2] = {
-        LAYER_CFG(2, 16, ACT_TANH),   // hidden
-        LAYER_CFG(16, 2, ACT_LINEAR)  // output
+        NN_LAYER_CFG(2, 16, ACT_TANH),   // hidden
+        NN_LAYER_CFG(16, 2, ACT_LINEAR)  // output
     };
 
     MLP *mlp = mlp_alloc(&param_arena, cfgs, 2);

@@ -110,9 +110,18 @@ Input: [1, 1] | Target: 0 | Output: (-49.6678, -56.9846) | Softmax: (0.9993, 0.0
 ```
 
 ## Running examples
-```
+```bash
 make run/<example-name>
 ```
+
+### Running mnist
+```bash
+make run/mnist      # train and save
+make run/mnist_eval # evaluation
+```
+
+## Note
+- MicrogradC is very slow for MNIST, especially with larger models. For shits and giggles only.
 
 ## References
 - https://github.com/karpathy/micrograd

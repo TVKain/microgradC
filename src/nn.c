@@ -46,7 +46,7 @@ Layer *layer_alloc(Arena *a, Layer_Config *cfg) {
     Layer *layer = arena_alloc(a, sizeof(Layer));
     layer->n_in = cfg->n_in;
     layer->n_out = cfg->n_out;
-
+    layer->act = cfg->act;
     
     layer->neurons = arena_alloc(a, sizeof(Neuron*) * cfg->n_out);
     for (size_t i = 0; i < cfg->n_out; ++i) {
@@ -57,7 +57,7 @@ Layer *layer_alloc(Arena *a, Layer_Config *cfg) {
 }
 
 void layer_print(Layer *l) {
-    printf("Layer(kind=%d in=%zu out=%zu)\n", l->n_in, l->n_out);
+    printf("Layer(in=%zu out=%zu)\n", l->n_in, l->n_out);
 
     for (size_t i = 0; i < l->n_out; ++i) {
         printf("\t");
@@ -190,4 +190,99 @@ void mlp_update(MLP *m, double lr) {
     for (size_t i = 0; i < m->layer_size; ++i) {
         layer_update(m->layers[i], lr);
     }
+}
+
+// In mlp_save - use fixed-size types
+int mlp_save(MLP *m, const char *filename) {
+    FILE *f = fopen(filename, "wb");
+    if (!f) return -1;
+
+    // Write layer_size as uint32_t (fixed 4 bytes)
+    uint32_t layer_size = (uint32_t)m->layer_size;
+    fwrite(&layer_size, sizeof(uint32_t), 1, f);
+
+    for (size_t i = 0; i < m->layer_size; i++) {
+        Layer *l = m->layers[i];
+        
+        // Write as uint32_t
+        uint32_t n_in = (uint32_t)l->n_in;
+        uint32_t n_out = (uint32_t)l->n_out;
+        uint32_t act = (uint32_t)l->act;
+        
+        fwrite(&n_in, sizeof(uint32_t), 1, f);
+        fwrite(&n_out, sizeof(uint32_t), 1, f);
+        fwrite(&act, sizeof(uint32_t), 1, f);
+
+        for (size_t j = 0; j < l->n_out; j++) {
+            for (size_t k = 0; k < l->n_in; k++) {
+                double val = l->neurons[j]->ws[k]->data;
+                fwrite(&val, sizeof(double), 1, f);
+            }
+            double b = l->neurons[j]->b->data;
+            fwrite(&b, sizeof(double), 1, f);
+        }
+    }
+
+    fclose(f);
+    return 0;
+}
+
+MLP *mlp_load(Arena *a, const char *filename) {
+    FILE *f = fopen(filename, "rb");
+    if (!f) return NULL;
+
+    // Read layer_size
+    uint32_t layer_size_u32;
+    if (fread(&layer_size_u32, sizeof(uint32_t), 1, f) != 1) {
+        fclose(f);
+        return NULL;
+    }
+    size_t layer_size = (size_t)layer_size_u32;
+
+    MLP *m = arena_alloc(a, sizeof(MLP));
+    m->layer_size = layer_size;
+    m->layers = arena_alloc(a, sizeof(Layer*) * layer_size);
+
+    for (size_t i = 0; i < layer_size; i++) {
+        // Read metadata
+        uint32_t n_in_u32, n_out_u32, act_u32;
+        
+        if (fread(&n_in_u32, sizeof(uint32_t), 1, f) != 1 ||
+            fread(&n_out_u32, sizeof(uint32_t), 1, f) != 1 ||
+            fread(&act_u32, sizeof(uint32_t), 1, f) != 1) {
+            fclose(f);
+            return NULL;
+        }
+        
+        size_t n_in = (size_t)n_in_u32;
+        size_t n_out = (size_t)n_out_u32;
+        Act_Kind act = (Act_Kind)act_u32;
+
+        Layer_Config cfg = { .n_in = n_in, .n_out = n_out, .act = act };
+        Layer *l = layer_alloc(a, &cfg);
+
+        // Read weights and biases
+        for (size_t j = 0; j < n_out; j++) {
+            for (size_t k = 0; k < n_in; k++) {
+                double val;
+                if (fread(&val, sizeof(double), 1, f) != 1) {
+                    fclose(f);
+                    return NULL;
+                }
+                l->neurons[j]->ws[k]->data = val;
+            }
+            
+            double b;
+            if (fread(&b, sizeof(double), 1, f) != 1) {
+                fclose(f);
+                return NULL;
+            }
+            l->neurons[j]->b->data = b;
+        }
+
+        m->layers[i] = l;
+    }
+
+    fclose(f);
+    return m;
 }

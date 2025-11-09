@@ -8,8 +8,8 @@ int main(void) {
 
     // Define network architecture with Layer_Config
     Layer_Config cfgs[2] = {
-        LAYER_CFG(2, 2, ACT_TANH),
-        LAYER_CFG(2, 1, ACT_LINEAR)
+        NN_LAYER_CFG(2, 2, ACT_TANH),
+        NN_LAYER_CFG(2, 1, ACT_LINEAR)
     };
 
     MLP *mlp = mlp_alloc(&param_arena, cfgs, 2);

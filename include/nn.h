@@ -9,8 +9,18 @@
 #include <string.h>
 #include <stdio.h>
 
-#define LAYER_CFG(n_in_val, n_out_val, act_val) \
+#define NN_LAYER_CFG(n_in_val, n_out_val, act_val) \
     ((Layer_Config){ .n_in = (n_in_val), .n_out = (n_out_val), .act = (act_val) })
+
+#define NN_READ_OR_FAIL(ptr, size, count, file) \
+    do { \
+        size_t _sz = (size); \
+        size_t _cnt = (count); \
+        if (fread((ptr), _sz, _cnt, (file)) != _cnt) { \
+            fclose(file); \
+            return NULL; \
+        } \
+    } while(0)
 
 typedef struct Neuron Neuron;
 
@@ -72,5 +82,7 @@ void mlp_print(MLP *m);
 Value **mlp_forward(Arena *a, MLP *m, Value **x, size_t x_size);
 void mlp_zero_grad(MLP *m);
 void mlp_update(MLP *m, double lr);
+int mlp_save(MLP *m, const char *filename);
+MLP *mlp_load(Arena *a, const char *filename);
 
 #endif
