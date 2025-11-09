@@ -2,13 +2,17 @@
 #include "value.h"
 #include "nn.h"
 
-int main() {
+int main(void) {
     Arena param_arena = {0};
     Arena graph_arena = {0};
 
-    size_t dims[3] = {2, 2, 1};
-    MLP *mlp = mlp_alloc(&param_arena, dims, 3);
+    // Define network architecture with Layer_Config
+    Layer_Config cfgs[2] = {
+        LAYER_CFG(2, 2, ACT_TANH),
+        LAYER_CFG(2, 1, ACT_LINEAR)
+    };
 
+    MLP *mlp = mlp_alloc(&param_arena, cfgs, 2);
     mlp_print(mlp);
     printf("\n");
 
@@ -19,59 +23,57 @@ int main() {
         {1.0, 0.0},
         {1.0, 1.0}
     };
-    
     double y[4] = {0.0, 1.0, 1.0, 0.0};
 
-    int num_epochs = 5000;
-    double learning_rate = 0.05;
+    int num_epochs = 1000;
+    double learning_rate = 0.1;
 
-    // Training loop, currently SGD
     for (int epoch = 0; epoch < num_epochs; epoch++) {
         double total_loss = 0.0;
+
         for (int i = 0; i < 4; i++) {
+            arena_reset(&graph_arena);
+
+            // Prepare inputs
             Value *inputs[2];
-            inputs[0] = value_create(&graph_arena, X[i][0]);
-            inputs[1] = value_create(&graph_arena, X[i][1]);
+            inputs[0] = value_alloc(&graph_arena, X[i][0]);
+            inputs[1] = value_alloc(&graph_arena, X[i][1]);
             inputs[0]->value_kind = VALUE_INPUT;
             inputs[1]->value_kind = VALUE_INPUT;
-            
-            // Create target Value
-            Value *target = value_create(&graph_arena, y[i]);
-            target->value_kind = VALUE_INPUT;
-            
-            // Forward pass
+
+            // Prepare target
+            Value *target = value_alloc(&graph_arena, y[i]);
+            Value *targets[1] = { target };
+
+            // Forward
             Value **out = mlp_forward(&graph_arena, mlp, inputs, 2);
-            Value *loss = mse(&graph_arena, out[0], target);
-            
+            Value *loss = mse(&graph_arena, out, targets, 1);
+
             total_loss += loss->data;
-            
-            // Backward pass
+
+            // Backward
             value_backward(&graph_arena, loss);
-            
+
             // Update parameters
             mlp_update(mlp, learning_rate);
-            
-            // Zero gradients
             mlp_zero_grad(mlp);
         }
 
-        if (epoch % 500 == 0) {
-            printf("Epoch %4d, Avg Loss: %.6f\n", epoch, total_loss / 4.0);
-        }
+        if (epoch % 500 == 0)
+            printf("Epoch %4d | Avg Loss: %.6f\n", epoch, total_loss / 4.0);
     }
 
     printf("\n--- Final Results ---\n");
     for (int i = 0; i < 4; i++) {
-        Value *inputs[2];
-        inputs[0] = value_create(&graph_arena, X[i][0]);
-        inputs[1] = value_create(&graph_arena, X[i][1]);
-        
-        Value **out = mlp_forward(&graph_arena, mlp, inputs, 2);
-        
-        printf("Input: [%.0f, %.0f], Target: %.0f, Prediction: %.4f\n",
-               X[i][0], X[i][1], y[i], out[0]->data);
-        
         arena_reset(&graph_arena);
+
+        Value *inputs[2];
+        inputs[0] = value_alloc(&graph_arena, X[i][0]);
+        inputs[1] = value_alloc(&graph_arena, X[i][1]);
+
+        Value **out = mlp_forward(&graph_arena, mlp, inputs, 2);
+        printf("Input: [%.0f, %.0f] | Target: %.0f | Pred: %.4f\n",
+               X[i][0], X[i][1], y[i], out[0]->data);
     }
 
     arena_free(&graph_arena);

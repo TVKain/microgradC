@@ -1,7 +1,7 @@
 # Makefile for MicrogradC
 
 CC      := gcc
-CFLAGS  := -Wall -Wextra -O2 -std=c23 -Iinclude
+CFLAGS  := -Wall -Wextra -O2 -std=c17 -Iinclude
 LDFLAGS := -lm
 AR      := ar
 ARFLAGS := rcs
@@ -38,9 +38,13 @@ examples: $(EXAMPLES)
 $(BUILD)/%: $(EXAMPLES_DIR)/%.c $(BUILD)/$(LIB_NAME)
 	$(CC) $(CFLAGS) $< -L$(BUILD) -lmicrogradc $(LDFLAGS) -o $@
 
-# Run example
-run: examples
-	$(BUILD)/xor
+# Run a specific example: make run EXAMPLE=xor_mse
+# Run a specific example
+.PHONY: run
+
+run/%: $(BUILD)/%
+	@echo "Running example: $*"
+	@./$<
 
 clean:
 	rm -rf $(BUILD)

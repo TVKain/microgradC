@@ -1,10 +1,3 @@
-# MicrogradC
-- [Micrograd](https://github.com/karpathy/micrograd) in C
-- I built this to understand how neural networks actually work under the hood 
-- Uses Arena Allocator from [Tsoding](https://github.com/tsoding) for memory management
-
-# Examples
-```C
 #include "arena.h"
 #include "value.h"
 #include "nn.h"
@@ -20,6 +13,8 @@ int main() {
     };
 
     MLP *mlp = mlp_alloc(&param_arena, cfgs, 2);
+    mlp_print(mlp);
+    printf("\n");
 
     // XOR dataset (2-class)
     double X[4][2] = {
@@ -83,26 +78,3 @@ int main() {
     arena_free(&param_arena);
     return 0;
 }
-```
-```
-Epoch    0 | Avg Loss: 0.991271
-Epoch  500 | Avg Loss: 0.376778
-Epoch 1000 | Avg Loss: 0.189224
-Epoch 1500 | Avg Loss: 0.254065
-Epoch 2000 | Avg Loss: 0.025508
-Epoch 2500 | Avg Loss: 0.245966
-Epoch 3000 | Avg Loss: 0.034588
-Epoch 3500 | Avg Loss: 0.066744
-Epoch 4000 | Avg Loss: 0.001242
-Epoch 4500 | Avg Loss: 0.000742
-
---- Final Results ---
-Input: [0, 0] | Target: 0 | Output: (61.4917, 53.3319) | Softmax: (0.9997, 0.0003)
-Input: [0, 1] | Target: 1 | Output: (-39.1342, -30.7677) | Softmax: (0.0002, 0.9998)
-Input: [1, 0] | Target: 1 | Output: (-40.8965, -33.7789) | Softmax: (0.0008, 0.9992)
-Input: [1, 1] | Target: 0 | Output: (-49.6678, -56.9846) | Softmax: (0.9993, 0.0007)
-```
-
-# References
-- https://github.com/karpathy/micrograd
-- https://github.com/tsoding/arena
