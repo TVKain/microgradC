@@ -127,7 +127,7 @@ Random MLP Accuracy:     5.05% (505/10000)
 ```
 
 ## Note
-- MicrogradC is very slow for MNIST, especially with larger models. For shits and giggles only.
+- MicrogradC is very slow, especially with larger models. For shits and giggles only.
 
 ## References
 - https://github.com/karpathy/micrograd
