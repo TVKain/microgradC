@@ -42,7 +42,6 @@ int main() {
             
             // Create target Value
             Value *target = value_create(&graph_arena, y[i]);
-            target->value_kind = VALUE_INPUT;
             
             // Forward pass
             Value **out = mlp_forward(&graph_arena, mlp, inputs, 2);
